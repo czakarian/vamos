@@ -1,6 +1,7 @@
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 import seaborn as sns
 import numpy as np
 import colorcet as cc
@@ -173,7 +174,7 @@ class TR:
         samples = list(self.annosByUsed.keys())
         annos = np.array([ [int(m) for m in self.annosByUsed[s]] \
                                    for s in samples ])
-
+        
         maxLen = self.maxLen + 1
 
         if self.space == 1:
@@ -188,9 +189,20 @@ class TR:
 
         plt.figure(figsize=(15, 12))
         sns.set(font_scale=2)
-        ax = sns.heatmap(annos, cmap=cmap, cbar=False)
+        ax = sns.heatmap(annos, cmap=cmap, cbar=False, yticklabels=yticklabels)
         #ax = sns.heatmap(np_annp, cmap=cmap, yticklabels=yticklabels)
         #ax.set_yticklabels(yticklabels, rotation=0, fontsize="3")
         #print(yticklabels)
+
+        legend_elements = []
+        unique_alleles = np.unique(annos)
+        for allele in unique_alleles:
+            if allele < len(cmap):  # Ensure the allele index is within the colormap range
+                color = cmap[allele]
+                legend_elements.append(Patch(facecolor=color, edgecolor=color, label=f'Allele {allele}'))
+
+        plt.legend(handles=legend_elements, title="Alleles", bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+
+        
         plt.savefig(outPlot, bbox_inches='tight', dpi=300, format='png')
 
